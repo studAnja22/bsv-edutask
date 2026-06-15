@@ -34,6 +34,18 @@ def test_invalid_email_yield_ValueError():
     sut = mock_setup()
     with pytest.raises(ValueError):
         sut.get_user_by_email("email.com")
+
+@pytest.mark.unit
+def test_database_operation_fail_exception():
+    """ Testing if function raises an Exception if database operations fails with a valid, registered email
+    """
+    mocked_db = mock.MagicMock()
+    mocked_db.find.side_effect = Exception
+    sut = UserController(dao=mocked_db)
+
+    with pytest.raises(Exception):
+        sut.get_user_by_email("email@email.com")
+    return
 # ---Setup of Mock, side effect, database and test pairs for registered users---# 
 def mock_setup():
     mocked_db = mock.MagicMock()

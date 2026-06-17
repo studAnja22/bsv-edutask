@@ -4,19 +4,24 @@ import unittest.mock as mock
 #Code by Anja22
 
 @pytest.mark.unit
-def test_registered_email():
-    """ Testing one registered user with uniq email and 
-    one registered user where there's a duplicate email in the database.
-    In case of a duplicate, the function should return the first instance of the user.
-    So, user[0] will always be user: One, not user: Two.
+def test_registered_email_unique():
+    """ Testing if function returns first instance of a user[0]
+    when searching for a unique email in the mock database.
     """
     sut = mock_setup()
+    email, expected_user = ("test@email.com", {"user": "Three", "email": "test@email.com"})
+    result = sut.get_user_by_email(email)
+    assert result == expected_user
 
-    testPairs = test_pairs_registered()
-    for testPair in testPairs:
-        email, expected_user = testPair
-        result = sut.get_user_by_email(email)
-        assert result == expected_user
+@pytest.mark.unit
+def test_registered_email_duplicate():
+    """ Testing if the function returns the first instance of a user[0]
+    when there are duplicates of that email in the database.
+    """
+    sut = mock_setup()
+    email, expected_user = ("email@email.com", {"user": "One", "email": "email@email.com"})
+    result = sut.get_user_by_email(email)
+    assert result == expected_user
 
 @pytest.mark.unit
 def test_unregistered_email_yield_None():
@@ -67,10 +72,4 @@ def database():
         {"user": "One", "email": "email@email.com"},
         {"user": "Two", "email": "email@email.com"},
         {"user": "Three", "email": "test@email.com"},
-        ]
-
-def test_pairs_registered():
-    return [
-        ("test@email.com", {"user": "Three", "email": "test@email.com"}),
-        ("email@email.com", {"user": "One", "email": "email@email.com"})
         ]

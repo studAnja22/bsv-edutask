@@ -88,6 +88,16 @@ describe('R8UC3: Task/Todo item GUI tests', () => {
         .should('not.contain.text', '✖')
     })
 
+    it('Observed behavior: UI sometimes does not load properly which causes the test to fail or pass randomly', () => {
+        cy.log("UI sometimes doesn't load properly, so the elements the test are trying to interact with doesn't exist which will then cause the test to fail.")
+        cy.log("This is 'R8UC3: Refreshing the page causes the deleted todo item to disappear' without the workaround")
+
+        // Since we only had one todo item, there should be no todo items after we deleted it
+        cy.log('Assert we have a remover button')
+        cy.get('.todo-list')
+        .should('not.have.class', 'todo-item')
+    })
+
     it('R8UC3: Refreshing the page causes the deleted todo item to disappear', () => {
         // Adding one more task to ensure we start on the container page with tasks as they sometimes doesn't load during testing
         // If you want to see the UI randomly not behaving as expected, remove line 94-98 :)

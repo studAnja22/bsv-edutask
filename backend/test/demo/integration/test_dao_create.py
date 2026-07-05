@@ -1,18 +1,51 @@
 import json
 import pytest
+import unittest.mock as mock
+from unittest.mock import patch
 from src.util.dao import DAO
 from src.util.validators import getValidator
 from pymongo.errors import WriteError
 
 #Code by Anja22
 @pytest.fixture
-def daoObject():
+def patch_user_json():
+    return {
+    "$jsonSchema": {
+        "bsonType": "object",
+        "required": ["firstName", "lastName", "email"],
+        "properties": {
+            "firstName": {
+                "bsonType": "string",
+                "description": "the first name of a user must be determined"
+            }, 
+            "lastName": {
+                "bsonType": "string",
+                "description": "the last name of a user must be determined"
+            },
+            "email": {
+                "bsonType": "string",
+                "description": "the email address of a user must be determined",
+                "uniqueItems": True
+            },
+            "tasks": {
+                "bsonType": "array",
+                "items": {
+                    "bsonType": "objectId"
+                }
+            }
+        }
+    }
+}
+
+@pytest.fixture
+def daoObject(patch_user_json):
     """Attempts to creates a collection used for test and then
     after it served its purpose, removes it from the database.
     """
-    sut = DAO('user')
-    yield sut
-    sut.collection.drop()
+    with patch('src.util.dao.getValidator', return_value = patch_user_json):
+        sut = DAO('user')
+        yield sut
+        sut.collection.drop()
 
 @pytest.mark.integration
 def test_unique_email_returns_that_user(daoObject):
@@ -71,8 +104,8 @@ def test_returns_parsed_JSON_object(daoObject):
 
 #------------------------WriteErrors---------------------------
 @pytest.mark.integration
-def test_invalid_input_raise_WrightError(daoObject):
-    """ Test if validator raise Wright Error if there are an invalid input
+def test_invalid_BSON_input_raise_WriteError(daoObject):
+    """ Test if validator raise Write Error if there are an invalid input
     """
     # for User "required": ["firstName", "lastName", "email"]
     with pytest.raises(WriteError):
@@ -81,8 +114,8 @@ def test_invalid_input_raise_WrightError(daoObject):
                     "email": "test@email.com"})
 
 @pytest.mark.integration
-def test_multiple_invalid_input_raise_WrightError(daoObject):
-    """ Test if validator raise Wright Error if there are multiple invalid inputs
+def test_multiple_invalid_BSON_input_raise_WriteError(daoObject):
+    """ Test if validator raise Write Error if there are multiple invalid inputs
     """
     # for User "required": ["firstName", "lastName", "email"]
     with pytest.raises(WriteError):
@@ -91,8 +124,8 @@ def test_multiple_invalid_input_raise_WrightError(daoObject):
                     "email": "test@email.com"})
 
 @pytest.mark.integration
-def test_required_field_missing_raise_WrightError(daoObject):
-    """ Test if validator raise Wright Error one of the required fields are missing
+def test_required_field_missing_raise_WriteError(daoObject):
+    """ Test if validator raise Write Error one of the required fields are missing
     """
     # for User "required": ["firstName", "lastName", "email"]
     with pytest.raises(WriteError):
@@ -100,14 +133,31 @@ def test_required_field_missing_raise_WrightError(daoObject):
                     "lastName": "User"})
 
 @pytest.mark.integration
-def test_unique_item_email_is_None_raise_WrightError(daoObject):
-    """ Test if validator raise Wright Error if email is None
+def test_unique_item_email_is_None_raise_WriteError(daoObject):
+    """ Test if validator raise Write Error if email is None
     """
     # for User "required": ["firstName", "lastName", "email"]
     with pytest.raises(WriteError):
-        daoObject.create({"firstName": 123,
+        daoObject.create({"firstName": "Name",
                     "lastName": "User",
                     "email": None})
+#-------------------Beyond The Oracle: Edge Cases---------------------
+@pytest.mark.integration
+def test_invalid_key_values_raise_WriteError(daoObject):
+    """ Test if validator raise Write Error if invalid input
+    """
+    # for User "required": ["firstName", "lastName", "email"]
+    with pytest.raises(WriteError):
+        daoObject.create({"Hello": "Test",
+                    "GoodBye": "User"})
+
+@pytest.mark.integration
+def test_invalid_data_string_raise_WriteError(daoObject):
+    """ Test if validator raise Write Error if invalid input
+    """
+    # for User "required": ["firstName", "lastName", "email"]
+    with pytest.raises(WriteError):
+        daoObject.create({"Hello"})
 #--------------------------Helpers-------------------------------
 def is_json_object_json(json_object):
     """ Checks if json_object is actually a JSON object.

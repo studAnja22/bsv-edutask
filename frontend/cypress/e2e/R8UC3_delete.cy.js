@@ -5,7 +5,7 @@ describe('R8UC3: Task/Todo item GUI tests', () => {
     let name // name of the user (firstName + ' ' + lastName)
     let email // email of the user
 
-    before(function () {
+    beforeEach(function () {
         // create a fabricated user from a fixture
         cy.fixture('user.json')
         .then((user) => {
@@ -20,37 +20,30 @@ describe('R8UC3: Task/Todo item GUI tests', () => {
             email = user.email
             })
         })
-    })
+        .then(() => {
+            // enter the main main page
+            cy.visit('http://localhost:3000')
 
-    beforeEach(function () {
-        // enter the main main page
-        cy.visit('http://localhost:3000')
+            // detect a div which contains "Email Address", find the input and type (in a declarative way)
+            cy.contains('div', 'Email Address')
+            .find('input[type=text]')
+            .type(email)
 
-        // detect a div which contains "Email Address", find the input and type (in a declarative way)
-        cy.contains('div', 'Email Address')
-        .find('input[type=text]')
-        .type(email)
+            // submit the form on this page
+            cy.get('form')
+            .submit()
 
-        // submit the form on this page
-        cy.get('form')
-        .submit()
-
-        // assert that the user is now logged in
-        cy.get('h1')
-        .should('contain.text', 'Your tasks, ' + name)
+            // assert that the user is now logged in
+            cy.get('h1')
+            .should('contain.text', 'Your tasks, ' + name)
+        })
+        
     })
 
     it('R8UC3: Deleting todo item should remove it from the todo list', () => {
         // Add a task
         cy.get('input[name="title"')
-        .type('Delete me')
-        cy.get('input[name="url"')
-        .type('https://www.youtube.com/watch?v=j64oZLF443g')
-        cy.get('input[type=submit]').click()
-
-        // Add one more task
-        cy.get('input[name="title"')
-        .type('Spare me')
+        .type('Deleting todo item should remove it from todo list')
         cy.get('input[name="url"')
         .type('https://www.youtube.com/watch?v=j64oZLF443g')
         cy.get('input[type=submit]').click()
@@ -58,7 +51,7 @@ describe('R8UC3: Task/Todo item GUI tests', () => {
         // Assert we added the task successfully.
         cy.log('Asserting we added the second task')
         cy.get('p')
-        .should('contain.text', 'Here you can find your 2 task')
+        .should('contain.text', 'Here you can find your 1 task')
 
         // Assert first element should be the task
         cy.log('Asserting the first task is in first place')
@@ -88,29 +81,23 @@ describe('R8UC3: Task/Todo item GUI tests', () => {
         .should('not.contain.text', '✖')
     })
 
-    it('Observed behavior: UI sometimes does not load properly which causes the test to fail or pass randomly', () => {
-        cy.log("UI sometimes doesn't load properly, so the elements the test are trying to interact with doesn't exist which will then cause the test to fail.")
-        cy.log("This is 'R8UC3: Refreshing the page causes the deleted todo item to disappear' without the workaround")
-
-        // Since we only had one todo item, there should be no todo items after we deleted it
-        cy.log('Assert we have a remover button')
-        cy.get('.todo-list')
-        .should('not.have.class', 'todo-item')
-    })
-
-    it('R8UC3: Refreshing the page causes the deleted todo item to disappear', () => {
-        // Adding one more task to ensure we start on the container page with tasks as they sometimes doesn't load during testing
-        // If you want to see the UI randomly not behaving as expected, remove line 94-98 :)
+    it('R8UC3: Deleted todo item disappears after user clicks on the deleted todo items toggle icon', () => {
+        // Add a task
         cy.get('input[name="title"')
-        .type('Task')
+        .type('UI updates slowly, user can toggle deleted item')
         cy.get('input[name="url"')
         .type('https://www.youtube.com/watch?v=j64oZLF443g')
         cy.get('input[type=submit]').click()
 
         // Click on the first video to open popup
-        cy.log('User clicks the video')
+        cy.log('User can click toggle item after item has been deleted')
         cy.get('.container-element')
         .first()
+        .click()
+
+        // User clicks the deleted todo items icon to toggle it, which should make the UI update and the todo item disappear
+        cy.log('User clicks the icon to toggle to done (checked)')
+        cy.get('.checker')
         .click()
 
         // Since we only had one todo item, there should be no todo items after we deleted it
@@ -120,9 +107,17 @@ describe('R8UC3: Task/Todo item GUI tests', () => {
     })
 
     it('R8UC3: User can delete todo item by clicking on it twice', () => {
-        // Click on the second video to open popup
+        // Add a task
+        cy.get('input[name="title"')
+        .type('User can click delete twice')
+        cy.get('input[name="url"')
+        .type('https://www.youtube.com/watch?v=j64oZLF443g')
+        cy.get('input[type=submit]').click()
+
+        // Click on the video
         cy.log('User clicks the video')
-        cy.get('.container-element').eq(-2)
+        cy.get('.container-element')
+        .first()
         .click()
 
         // First check that we have a x symbol to click
@@ -145,7 +140,7 @@ describe('R8UC3: Task/Todo item GUI tests', () => {
         .should('not.have.class', 'todo-item')
     })
 
-    after(function () {
+    afterEach(function () {
         // clean up by deleting the user from the database
         cy.request({
         method: 'DELETE',

@@ -5,7 +5,7 @@ describe('R8UC1: Task/Todo item GUI tests', () => {
     let name // name of the user (firstName + ' ' + lastName)
     let email // email of the user
 
-    before(function () {
+    beforeEach(function () {
         // create a fabricated user from a fixture
         cy.fixture('user.json')
         .then((user) => {
@@ -20,24 +20,24 @@ describe('R8UC1: Task/Todo item GUI tests', () => {
             email = user.email
             })
         })
-    })
+        .then(() => {
+            // enter the main main page
+            cy.visit('http://localhost:3000')
 
-    beforeEach(function () {
-        // enter the main main page
-        cy.visit('http://localhost:3000')
+            // detect a div which contains "Email Address", find the input and type (in a declarative way)
+            cy.contains('div', 'Email Address')
+            .find('input[type=text]')
+            .type(email)
 
-        // detect a div which contains "Email Address", find the input and type (in a declarative way)
-        cy.contains('div', 'Email Address')
-        .find('input[type=text]')
-        .type(email)
+            // submit the form on this page
+            cy.get('form')
+            .submit()
 
-        // submit the form on this page
-        cy.get('form')
-        .submit()
-
-        // assert that the user is now logged in
-        cy.get('h1')
-        .should('contain.text', 'Your tasks, ' + name)
+            // assert that the user is now logged in
+            cy.get('h1')
+            .should('contain.text', 'Your tasks, ' + name)
+        })
+        
     })
 
     it('R8UC1: User creates two task', () => {
@@ -102,10 +102,12 @@ describe('R8UC1: Task/Todo item GUI tests', () => {
     })
 
     it('R8UC1: User can add a new todo item and the items append at the bottom of the todo list', () => {
-        // Write something to ensure the landing page loads properly for the test
-        // If you want to see the UI randomly not behaving as expected, remove line 107-108 :)
+        // Add a task
         cy.get('input[name="title"')
-        .type('foobar')
+        .type('Todo Item Append At The Bottom')
+        cy.get('input[name="url"')
+        .type('https://www.youtube.com/watch?v=j64oZLF443g')
+        cy.get('input[type=submit]').click()
 
         // Click on the first task element
         cy.log('User clicks the video')
@@ -139,6 +141,13 @@ describe('R8UC1: Task/Todo item GUI tests', () => {
     })
 
     it('R8UC1: Add button should be disabled when the description is empty', () => {
+        // Add a task
+        cy.get('input[name="title"')
+        .type('Is Button Disabled?')
+        cy.get('input[name="url"')
+        .type('https://www.youtube.com/watch?v=j64oZLF443g')
+        cy.get('input[type=submit]').click()
+
         // Click on the first task element
         cy.log('User clicks the video')
         cy.get('.container-element')
@@ -151,7 +160,7 @@ describe('R8UC1: Task/Todo item GUI tests', () => {
         .should('be.disabled')
     })
 
-    after(function () {
+    afterEach(function () {
         // clean up by deleting the user from the database
         cy.request({
         method: 'DELETE',

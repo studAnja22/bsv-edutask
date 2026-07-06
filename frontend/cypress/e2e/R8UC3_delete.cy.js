@@ -57,7 +57,7 @@ describe('R8UC3: Task/Todo item GUI tests', () => {
         cy.log('Asserting the first task is in first place')
         cy.get('.container-element')
         .first()
-        .should('contain.text', 'Delete me')
+        .should('contain.text', 'Deleting todo item should remove it from todo list')
 
         // Click on the first video to open popup
         cy.log('User clicks the video')

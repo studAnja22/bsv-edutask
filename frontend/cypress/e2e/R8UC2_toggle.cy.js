@@ -45,7 +45,7 @@ describe('R8UC2: Task/Todo item GUI tests', () => {
         cy.get('input[name="title"')
         .type('Toggle me')
         cy.get('input[name="url"')
-        .type('https://www.youtube.com/watch?v=j64oZLF443g')
+        .type('j64oZLF443g')
         cy.get('input[type=submit]').click()
 
         // Assert we added the task successfully.

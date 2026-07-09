@@ -48,7 +48,7 @@ describe('R8UC1: Task/Todo item GUI tests', () => {
 
         // Filling out the url
         cy.get('input[name="url"')
-        .type('https://www.youtube.com/watch?v=j64oZLF443g')//"In space with markiplier"
+        .type('j64oZLF443g')//"In space with markiplier" YouTube video ID/key
 
         // Assert: Submit button should be disabled when title (description) is empty
         cy.log('Submit button is disabled when the title is empty')
@@ -78,10 +78,11 @@ describe('R8UC1: Task/Todo item GUI tests', () => {
         .should('not.exist')
 
         // Add one more unique task element
+        cy.log("Adding new task with entire url instead of url view key.")
         cy.get('input[name="title"')
         .type('foobar')
         cy.get('input[name="url"')
-        .type('https://www.youtube.com/watch?v=j64oZLF443g')
+        .type('https://www.youtube.com/watch?v=j64oZLF443g') //Testing if possible to add entire url
         cy.get('input[type=submit]').click()
 
         //Assert we added the second task element.
@@ -106,7 +107,7 @@ describe('R8UC1: Task/Todo item GUI tests', () => {
         cy.get('input[name="title"')
         .type('Todo Item Append At The Bottom')
         cy.get('input[name="url"')
-        .type('https://www.youtube.com/watch?v=j64oZLF443g')
+        .type('j64oZLF443g')
         cy.get('input[type=submit]').click()
 
         // Click on the first task element
@@ -145,7 +146,7 @@ describe('R8UC1: Task/Todo item GUI tests', () => {
         cy.get('input[name="title"')
         .type('Is Button Disabled?')
         cy.get('input[name="url"')
-        .type('https://www.youtube.com/watch?v=j64oZLF443g')
+        .type('j64oZLF443g')
         cy.get('input[type=submit]').click()
 
         // Click on the first task element

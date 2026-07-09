@@ -45,7 +45,7 @@ describe('R8UC3: Task/Todo item GUI tests', () => {
         cy.get('input[name="title"')
         .type('Deleting todo item should remove it from todo list')
         cy.get('input[name="url"')
-        .type('https://www.youtube.com/watch?v=j64oZLF443g')
+        .type('j64oZLF443g')
         cy.get('input[type=submit]').click()
 
         // Assert we added the task successfully.
@@ -86,7 +86,7 @@ describe('R8UC3: Task/Todo item GUI tests', () => {
         cy.get('input[name="title"')
         .type('UI updates slowly, user can toggle deleted item')
         cy.get('input[name="url"')
-        .type('https://www.youtube.com/watch?v=j64oZLF443g')
+        .type('j64oZLF443g')
         cy.get('input[type=submit]').click()
 
         // Click on the first video to open popup
@@ -111,7 +111,7 @@ describe('R8UC3: Task/Todo item GUI tests', () => {
         cy.get('input[name="title"')
         .type('User can click delete twice')
         cy.get('input[name="url"')
-        .type('https://www.youtube.com/watch?v=j64oZLF443g')
+        .type('j64oZLF443g')
         cy.get('input[type=submit]').click()
 
         // Click on the video
